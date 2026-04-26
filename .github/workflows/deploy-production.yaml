@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: XXX-deploy-production
+  group: my-cfapps-portal-deploy-production
 
 permissions:
   contents: 'read'
@@ -23,9 +23,9 @@ jobs:
         id: set_name
         run: |
           # if [ -n "${{ github.event.pull_request.number }}" ]; then
-          #   echo "function_name=XXX${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+          #   echo "function_name=my-cfapps-portal${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
           # else
-            echo "function_name=XXX" >> $GITHUB_OUTPUT
+            echo "function_name=my-cfapps-portal" >> $GITHUB_OUTPUT
           # fi
 
   deploy:
@@ -40,7 +40,7 @@ jobs:
       secrets_config: |-
         SECRET_KEYS
       # gcs_source_dir: ./public/
-      # gcs_bucket_name: XXX-static
+      # gcs_bucket_name: my-cfapps-portal-static
       # gcs_bucket_path: test
       # disable_gcs_cache: true
       deploy_http_trigger: true
