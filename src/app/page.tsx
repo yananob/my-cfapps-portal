@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Search, Loader2, RefreshCw } from "lucide-react";
+import { Search, Loader2, RefreshCw, AlertCircle } from "lucide-react";
 import { ServiceCard } from "@/components/ServiceCard";
 import { cn } from "@/lib/utils";
 
@@ -16,22 +16,26 @@ interface ServiceData {
 export default function Dashboard() {
   const [services, setServices] = useState<ServiceData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   const fetchServices = async () => {
     setLoading(true);
+    setError(null);
     try {
       const response = await fetch("/api/services");
       const data = await response.json();
-      if (Array.isArray(data)) {
+
+      if (response.ok) {
         setServices(data);
+        setLastUpdated(new Date());
       } else {
-        console.error("Unexpected data format:", data);
+        setError(data.error || "Failed to fetch services");
       }
-      setLastUpdated(new Date());
-    } catch (error) {
-      console.error("Failed to fetch services:", error);
+    } catch (err) {
+      console.error("Failed to fetch services:", err);
+      setError("An unexpected error occurred");
     } finally {
       setLoading(false);
     }
@@ -54,7 +58,7 @@ export default function Dashboard() {
           <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
             Cloud Run Services
           </h1>
-          {lastUpdated && (
+          {lastUpdated && !error && (
             <p className="text-sm text-slate-500 mt-1">
               Last updated: {lastUpdated.toLocaleTimeString()}
             </p>
@@ -83,6 +87,23 @@ export default function Dashboard() {
         </div>
       </header>
 
+      {error && (
+        <div className="mb-8 p-4 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 rounded-lg flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+          <div>
+            <h2 className="text-sm font-semibold text-red-800 dark:text-red-200">
+              Error fetching services
+            </h2>
+            <p className="text-sm text-red-700 dark:text-red-300 mt-1">
+              {error}
+            </p>
+            <p className="text-xs text-red-600/80 dark:text-red-400/80 mt-2">
+              認証エラー（invalid_grant）が発生している場合は、Google Cloud の認証設定やサービスアカウントの権限を確認してください。
+            </p>
+          </div>
+        </div>
+      )}
+
       {loading && services.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20">
           <Loader2 className="w-10 h-10 text-blue-500 animate-spin mb-4" />
@@ -90,7 +111,7 @@ export default function Dashboard() {
         </div>
       ) : (
         <>
-          {filteredServices.length === 0 ? (
+          {!error && filteredServices.length === 0 ? (
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-12 text-center">
               <p className="text-slate-500">No services found.</p>
             </div>

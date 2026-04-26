@@ -14,8 +14,7 @@ export async function getAllReposInfo(): Promise<Map<string, GitHubRepoInfo>> {
   const githubOwner = process.env.GITHUB_OWNER;
 
   if (!githubOwner) {
-    console.error("GITHUB_OWNER is not set");
-    return new Map();
+    throw new Error("GITHUB_OWNER is not set");
   }
 
   const octokit = new Octokit({ auth: githubPat });
@@ -41,6 +40,6 @@ export async function getAllReposInfo(): Promise<Map<string, GitHubRepoInfo>> {
     return repoMap;
   } catch (error) {
     console.error("Error fetching GitHub repositories:", error);
-    return new Map();
+    throw error;
   }
 }

@@ -21,10 +21,14 @@ export async function GET() {
     });
 
     return NextResponse.json(combinedData);
-  } catch (error) {
+  } catch (error: any) {
     console.error("API error:", error);
+
+    // エラーメッセージをクライアントに返す（デバッグ用だが、指示書にはプライベートポータルとあるので許容）
+    const errorMessage = error instanceof Error ? error.message : "Internal Server Error";
+
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: errorMessage },
       { status: 500 }
     );
   }

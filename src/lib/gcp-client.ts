@@ -20,8 +20,7 @@ export async function getCloudRunServices(): Promise<CloudRunService[]> {
   const region = process.env.GCP_REGION || "asia-northeast1";
 
   if (!projectId) {
-    console.warn("GCP_PROJECT_ID is not set");
-    return [];
+    throw new Error("GCP_PROJECT_ID is not set");
   }
 
   const client = getClient();
@@ -43,6 +42,6 @@ export async function getCloudRunServices(): Promise<CloudRunService[]> {
     });
   } catch (error) {
     console.error("Error fetching Cloud Run services:", error);
-    return [];
+    throw error;
   }
 }
