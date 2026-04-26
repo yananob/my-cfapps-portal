@@ -6,7 +6,12 @@ on:
       - test
   pull_request:
     branches:
-      - main
+      - test
+    types:
+      - 'opened'
+      - 'synchronize'
+      - 'edited'
+      - 'reopened'
   workflow_dispatch:
 
 concurrency:
@@ -35,8 +40,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          submodules: 'true'
+        #  with:
+        #  submodules: 'true'
 
       - name: Google Cloud auth
         id: auth
