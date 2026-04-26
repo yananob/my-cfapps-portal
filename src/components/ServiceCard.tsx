@@ -8,6 +8,7 @@ interface ServiceCardProps {
   main?: ServiceInstance;
   test?: ServiceInstance;
   event?: ServiceInstance;
+  testEvent?: ServiceInstance;
   repoUrl?: string;
   issueUrl?: string;
 }
@@ -73,6 +74,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
   main,
   test,
   event,
+  testEvent,
   repoUrl,
   issueUrl,
 }) => {
@@ -80,7 +82,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden">
       <div className="flex flex-col md:flex-row md:items-center p-4 md:p-5 gap-6">
         {/* Name and Repo Links */}
-        <div className="flex-1 min-w-0 md:max-w-[250px]">
+        <div className="flex-1 min-w-0 md:max-w-[200px]">
           <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 truncate mb-3" title={baseName}>
             {baseName}
           </h3>
@@ -121,7 +123,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
         </div>
 
         {/* Instances */}
-        <div className="flex flex-wrap md:flex-nowrap gap-6 md:gap-10 flex-1">
+        <div className="flex flex-wrap md:flex-nowrap gap-6 md:gap-8 flex-1">
           <InstanceLinks
             label="本番環境"
             instance={main}
@@ -135,10 +137,16 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
             textColorClass="text-emerald-600"
           />
           <InstanceLinks
-            label="イベントトリガー"
+            label="イベント"
             instance={event}
             colorClass="bg-amber-600 hover:bg-amber-700"
             textColorClass="text-amber-600"
+          />
+          <InstanceLinks
+            label="イベント(テスト)"
+            instance={testEvent}
+            colorClass="bg-orange-600 hover:bg-orange-700"
+            textColorClass="text-orange-600"
           />
         </div>
       </div>
