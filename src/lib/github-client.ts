@@ -1,10 +1,5 @@
 import { Octokit } from "octokit";
 
-const githubPat = process.env.GITHUB_PAT;
-const githubOwner = process.env.GITHUB_OWNER;
-
-const octokit = new Octokit({ auth: githubPat });
-
 export interface GitHubRepoInfo {
   repoUrl: string;
   issueUrl: string;
@@ -15,10 +10,15 @@ export interface GitHubRepoInfo {
  * N+1問題を避けるため、一括で取得します。
  */
 export async function getAllReposInfo(): Promise<Map<string, GitHubRepoInfo>> {
+  const githubPat = process.env.GITHUB_PAT;
+  const githubOwner = process.env.GITHUB_OWNER;
+
   if (!githubOwner) {
     console.error("GITHUB_OWNER is not set");
     return new Map();
   }
+
+  const octokit = new Octokit({ auth: githubPat });
 
   try {
     const repos = await octokit.paginate(octokit.rest.repos.listForOrg, {

@@ -1,9 +1,13 @@
 import { ServicesClient } from "@google-cloud/run";
 
-const projectId = process.env.GCP_PROJECT_ID;
-const region = process.env.GCP_REGION || "asia-northeast1";
+let client: ServicesClient | null = null;
 
-const client = new ServicesClient();
+function getClient() {
+  if (!client) {
+    client = new ServicesClient();
+  }
+  return client;
+}
 
 export interface CloudRunService {
   name: string;
@@ -12,11 +16,15 @@ export interface CloudRunService {
 }
 
 export async function getCloudRunServices(): Promise<CloudRunService[]> {
+  const projectId = process.env.GCP_PROJECT_ID;
+  const region = process.env.GCP_REGION || "asia-northeast1";
+
   if (!projectId) {
     console.warn("GCP_PROJECT_ID is not set");
     return [];
   }
 
+  const client = getClient();
   const parent = `projects/${projectId}/locations/${region}`;
 
   try {
