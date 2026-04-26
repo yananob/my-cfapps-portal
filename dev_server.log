@@ -1,0 +1,63 @@
+
+> cloud-run-manager@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.0.3
+   - Local:        http://localhost:3000
+
+ ✓ Starting...
+ ✓ Ready in 1940ms
+ ○ Compiling / ...
+ ⨯ Failed to find font override values for font `Geist`
+ ⨯ Failed to find font override values for font `Geist Mono`
+ ⨯ Failed to find font override values for font `Geist`
+ ⨯ Failed to find font override values for font `Geist Mono`
+ ✓ Compiled / in 4.9s (625 modules)
+ GET / 200 in 5872ms
+ ✓ Compiled in 996ms (303 modules)
+ ○ Compiling /api/services ...
+ ✓ Compiled /api/services in 8.1s (1010 modules)
+API error: Error: GCP_PROJECT_ID is not set
+    at getCloudRunServices (src/lib/gcp-client.ts:23:10)
+    at getCloudRunServices (src/app/api/services/route.ts:9:25)
+    at run (webpack://next/dist/src/server/route-modules/app-route/module.ts:529:41)
+    at handler (webpack://next/dist/src/server/route-modules/app-route/module.ts:725:18)
+    at fn (node_modules/next/src/server/lib/trace/tracer.ts:351:27)
+    at NoopContextManager.with (/app/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/app/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NoopTracer.startActiveSpan (/app/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093)
+    at ProxyTracer.startActiveSpan (/app/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18854)
+    at startActiveSpan (node_modules/next/src/server/lib/trace/tracer.ts:304:31)
+    at NoopContextManager.with (/app/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/app/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at spanContext (node_modules/next/src/server/lib/trace/tracer.ts:303:24)
+    at trace (webpack://next/dist/src/server/route-modules/app-route/module.ts:715:26)
+    at run (webpack://next/dist/src/server/route-modules/app-route/module.ts:662:32)
+    at run (webpack://next/dist/src/server/route-modules/app-route/module.ts:661:34)
+    at run (webpack://next/dist/src/server/route-modules/app-route/module.ts:658:60)
+    at handle (node_modules/next/src/server/base-server.ts:2504:47)
+    at doRender (node_modules/next/src/server/base-server.ts:3027:27)
+    at responseGenerator (node_modules/next/src/server/response-cache/index.ts:67:13)
+    at get (node_modules/next/src/server/base-server.ts:3039:48)
+    at renderToResponseWithComponentsImpl (node_modules/next/src/server/base-server.ts:1877:13)
+    at fn (node_modules/next/src/server/lib/trace/tracer.ts:279:13)
+    at trace (node_modules/next/src/server/base-server.ts:1874:23)
+    at renderToResponseWithComponents (node_modules/next/src/server/base-server.ts:3597:26)
+    at async DevServer.renderToResponseImpl (node_modules/next/src/server/base-server.ts:3659:23)
+    at async DevServer.pipeImpl (node_modules/next/src/server/base-server.ts:1698:20)
+    at async NextNodeServer.handleCatchallRenderRequest (node_modules/next/src/server/next-server.ts:1034:6)
+    at async DevServer.handleRequestImpl (node_modules/next/src/server/base-server.ts:1462:8)
+    at async (node_modules/next/src/server/dev/next-dev-server.ts:514:13)
+    at async Span.traceAsyncFn (node_modules/next/src/trace/trace.ts:143:13)
+    at async DevServer.handleRequest (node_modules/next/src/server/dev/next-dev-server.ts:512:19)
+    at async invokeRender (node_modules/next/src/server/lib/router-server.ts:284:10)
+    at async handleRequest (node_modules/next/src/server/lib/router-server.ts:530:15)
+    at async requestHandlerImpl (node_modules/next/src/server/lib/router-server.ts:576:6)
+    at async Server.requestListener (node_modules/next/src/server/lib/start-server.ts:146:6)
+  21 |
+  22 |   if (!projectId) {
+> 23 |     throw new Error("GCP_PROJECT_ID is not set");
+     |          ^
+  24 |   }
+  25 |
+  26 |   const client = getClient();
