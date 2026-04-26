@@ -52,8 +52,8 @@ jobs:
           env_vars: |-
             GCP_PROJECT_ID=${{ secrets.GCP_PROJECT_ID }}
             GCP_REGION=${{ secrets.GCP_REGION }}
-            GITHUB_PAT=${{ secrets.GITHUB_PAT }}
-            GITHUB_OWNER=${{ secrets.GITHUB_OWNER }}
+            GITHUB_PAT=${{ secrets.GH_PAT }}
+            GITHUB_OWNER=${{ secrets.GH_OWNER }}
             APP_ENV=production
           secrets: |-
             SECRET_KEYS=SECRET_KEYS:latest
