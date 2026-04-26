@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCloudRunServices } from "@/lib/gcp-client";
 import { getAllReposInfo } from "@/lib/github-client";
+import { ServiceGroup } from "@/lib/types";
 
 export async function GET() {
   try {
@@ -9,22 +10,45 @@ export async function GET() {
       getAllReposInfo(),
     ]);
 
-    const combinedData = services.map((service) => {
-      const repoInfo = repoMap.get(service.name);
-      return {
-        id: service.name,
+    const groupsMap = new Map<string, ServiceGroup>();
+
+    for (const service of services) {
+      let baseName = service.name;
+      let type: "main" | "test" | "event" = "main";
+
+      if (service.name.endsWith("-test")) {
+        baseName = service.name.replace(/-test$/, "");
+        type = "test";
+      } else if (service.name.endsWith("-event")) {
+        baseName = service.name.replace(/-event$/, "");
+        type = "event";
+      }
+
+      let group = groupsMap.get(baseName);
+      if (!group) {
+        const repoInfo = repoMap.get(baseName);
+        group = {
+          baseName,
+          repoUrl: repoInfo?.repoUrl,
+          issueUrl: repoInfo?.issueUrl,
+        };
+        groupsMap.set(baseName, group);
+      }
+
+      group[type] = {
         url: service.url,
         logUrl: service.logUrl,
-        repoUrl: repoInfo?.repoUrl,
-        issueUrl: repoInfo?.issueUrl,
       };
-    });
+    }
+
+    const combinedData = Array.from(groupsMap.values()).sort((a, b) =>
+      a.baseName.localeCompare(b.baseName)
+    );
 
     return NextResponse.json(combinedData);
   } catch (error: any) {
     console.error("API error:", error);
 
-    // エラーメッセージをクライアントに返す（デバッグ用だが、指示書にはプライベートポータルとあるので許容）
     const errorMessage = error instanceof Error ? error.message : "Internal Server Error";
 
     return NextResponse.json(
