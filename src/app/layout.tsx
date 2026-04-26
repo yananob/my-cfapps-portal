@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { PWARegistration } from "@/components/PWARegistration";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,6 +16,18 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Cloud Run Service Manager",
   description: "Management portal for Cloud Run services",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "CR Manager",
+  },
+  icons: {
+    apple: "/icon.svg",
+  },
+};
+
+export const viewport = {
+  themeColor: "#3b82f6",
 };
 
 export default function RootLayout({
@@ -27,6 +40,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen`}
       >
+        <PWARegistration />
         {children}
       </body>
     </html>

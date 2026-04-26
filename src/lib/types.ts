@@ -8,6 +8,7 @@ export interface ServiceGroup {
   main?: ServiceInstance;
   test?: ServiceInstance;
   event?: ServiceInstance;
+  testEvent?: ServiceInstance;
   repoUrl?: string;
   issueUrl?: string;
 }
