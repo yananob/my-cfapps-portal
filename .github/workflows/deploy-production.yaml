@@ -49,6 +49,7 @@ jobs:
           service: ${{ needs.prepare.outputs.service_name }}
           region: ${{ secrets.GCP_REGION }}
           source: .
+          flags: '--clear-base-image'
           env_vars: |-
             GCP_PROJECT_ID=${{ secrets.GCP_PROJECT_ID }}
             GCP_REGION=${{ secrets.GCP_REGION }}
@@ -57,7 +58,7 @@ jobs:
             APP_ENV=production
           secrets: |-
             GCLOUD_SERVICE_ACCOUNT=GCLOUD_SERVICE_ACCOUNT:latest
-          memory: 256Mi
+          flags: --clear-base-image --memory=256Mi
 
   comment:
     needs: [prepare, deploy]
