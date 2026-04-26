@@ -22,9 +22,6 @@ export async function GET() {
       } else if (service.name.endsWith("-test")) {
         baseName = service.name.replace(/-test$/, "");
         type = "test";
-      } else if (service.name.endsWith("_test")) {
-        baseName = service.name.replace(/_test$/, "");
-        type = "test";
       } else if (service.name.endsWith("-event")) {
         baseName = service.name.replace(/-event$/, "");
         type = "event";
