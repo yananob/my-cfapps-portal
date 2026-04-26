@@ -14,10 +14,16 @@ export async function GET() {
 
     for (const service of services) {
       let baseName = service.name;
-      let type: "main" | "test" | "event" = "main";
+      let type: "main" | "test" | "event" | "testEvent" = "main";
 
-      if (service.name.endsWith("-test")) {
+      if (service.name.endsWith("-test-event")) {
+        baseName = service.name.replace(/-test-event$/, "");
+        type = "testEvent";
+      } else if (service.name.endsWith("-test")) {
         baseName = service.name.replace(/-test$/, "");
+        type = "test";
+      } else if (service.name.endsWith("_test")) {
+        baseName = service.name.replace(/_test$/, "");
         type = "test";
       } else if (service.name.endsWith("-event")) {
         baseName = service.name.replace(/-event$/, "");
