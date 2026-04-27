@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Search, Loader2, RefreshCw, AlertCircle } from "lucide-react";
+import { Search, Loader2, RefreshCw, AlertCircle, X } from "lucide-react";
 import { ServiceCard } from "@/components/ServiceCard";
 import { cn } from "@/lib/utils";
 import { ServiceGroup } from "@/lib/types";
@@ -64,10 +64,22 @@ export default function Dashboard() {
             <input
               type="text"
               placeholder="Search services..."
-              className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+              className="w-full pl-10 pr-10 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck="false"
             />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                title="Clear search"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
           <button
             onClick={fetchServices}
@@ -117,6 +129,7 @@ export default function Dashboard() {
                   main={group.main}
                   test={group.test}
                   event={group.event}
+                  testEvent={group.testEvent}
                   repoUrl={group.repoUrl}
                   issueUrl={group.issueUrl}
                 />
