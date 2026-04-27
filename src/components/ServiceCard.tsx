@@ -21,9 +21,9 @@ const InstanceLinks: React.FC<{
 }> = ({ label, instance, colorClass, textColorClass }) => {
   if (!instance) {
     return (
-      <div className="flex items-center gap-2 opacity-30 grayscale">
-        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 w-[90px] shrink-0 whitespace-nowrap">{label}</span>
-        <div className="flex gap-1.5">
+      <div className="flex items-center gap-3 opacity-30 grayscale flex-nowrap shrink-0">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 min-w-[80px] shrink-0 whitespace-nowrap">{label}</span>
+        <div className="flex gap-1.5 flex-nowrap shrink-0">
           <div className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-400 rounded border border-transparent whitespace-nowrap">
             <Globe className="w-3.5 h-3.5" /> App
           </div>
@@ -36,11 +36,11 @@ const InstanceLinks: React.FC<{
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <span className={cn("text-[10px] font-bold uppercase tracking-wider w-[90px] shrink-0 whitespace-nowrap", textColorClass)}>
+    <div className="flex items-center gap-3 flex-nowrap shrink-0">
+      <span className={cn("text-[10px] font-bold uppercase tracking-wider min-w-[80px] shrink-0 whitespace-nowrap", textColorClass)}>
         {label}
       </span>
-      <div className="flex gap-1.5">
+      <div className="flex gap-1.5 flex-nowrap shrink-0">
         <a
           href={instance.url}
           target="_blank"
@@ -123,8 +123,8 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
         </div>
 
         {/* Instances */}
-        <div className="flex flex-col gap-4 flex-1">
-          <div className="flex flex-nowrap gap-6 md:gap-8">
+        <div className="flex flex-col gap-5 flex-1 min-w-0">
+          <div className="flex flex-nowrap gap-8 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
             <InstanceLinks
               label="本番環境"
               instance={main}
@@ -138,7 +138,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
               textColorClass="text-emerald-600"
             />
           </div>
-          <div className="flex flex-nowrap gap-6 md:gap-8">
+          <div className="flex flex-nowrap gap-8 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
             <InstanceLinks
               label="イベント"
               instance={event}

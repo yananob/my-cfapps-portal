@@ -69,15 +69,16 @@ export default function Dashboard() {
               onChange={(e) => setSearchQuery(e.target.value)}
               autoCapitalize="none"
               autoCorrect="off"
+              autoComplete="off"
               spellCheck="false"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 transition-colors z-10"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-all z-10 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full"
                 title="Clear search"
               >
-                <X className="w-4 h-4 stroke-[2.5px]" />
+                <X className="w-4 h-4 stroke-[3px]" />
               </button>
             )}
           </div>
