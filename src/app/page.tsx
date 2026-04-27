@@ -74,10 +74,10 @@ export default function Dashboard() {
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 transition-colors z-10"
                 title="Clear search"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4 stroke-[2.5px]" />
               </button>
             )}
           </div>

@@ -21,13 +21,13 @@ const InstanceLinks: React.FC<{
 }> = ({ label, instance, colorClass, textColorClass }) => {
   if (!instance) {
     return (
-      <div className="flex flex-col gap-1 opacity-30 grayscale">
-        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{label}</span>
-        <div className="flex gap-2">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-400 rounded border border-transparent whitespace-nowrap">
+      <div className="flex items-center gap-2 opacity-30 grayscale">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 w-[90px] shrink-0 whitespace-nowrap">{label}</span>
+        <div className="flex gap-1.5">
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-400 rounded border border-transparent whitespace-nowrap">
             <Globe className="w-3.5 h-3.5" /> App
           </div>
-          <div className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-400 rounded border border-transparent whitespace-nowrap">
+          <div className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-400 rounded border border-transparent whitespace-nowrap">
             <ListTodo className="w-3.5 h-3.5" /> Log
           </div>
         </div>
@@ -36,11 +36,11 @@ const InstanceLinks: React.FC<{
   }
 
   return (
-    <div className="flex flex-col gap-1">
-      <span className={cn("text-[10px] font-bold uppercase tracking-wider", textColorClass)}>
+    <div className="flex items-center gap-2">
+      <span className={cn("text-[10px] font-bold uppercase tracking-wider w-[90px] shrink-0 whitespace-nowrap", textColorClass)}>
         {label}
       </span>
-      <div className="flex gap-2">
+      <div className="flex gap-1.5">
         <a
           href={instance.url}
           target="_blank"
