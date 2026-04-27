@@ -2,6 +2,8 @@ const CACHE_NAME = 'cr-manager-cache-v1';
 const urlsToCache = [
   '/',
   '/icon.svg',
+  '/icon',
+  '/apple-icon',
 ];
 
 self.addEventListener('install', (event) => {
