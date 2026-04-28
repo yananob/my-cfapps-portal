@@ -32,7 +32,7 @@ export async function getCloudRunServices(): Promise<CloudRunService[]> {
     return (services || []).map((service) => {
       const name = service.name?.split("/").pop() || "";
       const url = service.uri || "";
-      const logUrl = `https://console.cloud.google.com/run/detail/${region}/${name}/logs?project=${projectId}`;
+      const logUrl = `https://console.cloud.google.com/run/observability/${region}/${name}/logs?project=${projectId}&supportedpurview=project`;
 
       return {
         name,
