@@ -17,7 +17,11 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('fetch', (event) => {
   // 外部オリジン（GCP APIなど）へのリクエストはキャッシュしない
-  if (!event.request.url.startsWith(self.location.origin)) {
+  // マニフェストファイルは IAP 認証のリダイレクトを伴う可能性があるため Service Worker で扱わない
+  if (
+    !event.request.url.startsWith(self.location.origin) ||
+    event.request.url.endsWith('manifest.webmanifest')
+  ) {
     return;
   }
 
