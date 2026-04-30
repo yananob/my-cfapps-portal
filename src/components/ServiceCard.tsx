@@ -13,58 +13,48 @@ interface ServiceCardProps {
   issueUrl?: string;
 }
 
-const InstanceLinks: React.FC<{
-  label: string;
+const InstanceButtons: React.FC<{
   instance?: ServiceInstance;
   colorClass: string;
-  textColorClass: string;
-}> = ({ label, instance, colorClass, textColorClass }) => {
+}> = ({ instance, colorClass }) => {
   if (!instance) {
     return (
-      <div className="flex items-center gap-3 opacity-30 grayscale flex-nowrap shrink-0">
-        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 min-w-[80px] shrink-0 whitespace-nowrap">{label}</span>
-        <div className="flex gap-1.5 flex-nowrap shrink-0">
-          <div className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-400 rounded border border-transparent whitespace-nowrap">
-            <Globe className="w-3.5 h-3.5" /> App
-          </div>
-          <div className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-400 rounded border border-transparent whitespace-nowrap">
-            <ListTodo className="w-3.5 h-3.5" /> Log
-          </div>
+      <div className="flex gap-1 opacity-20 grayscale">
+        <div className="flex-1 flex items-center justify-center gap-1 px-1 py-1.5 text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-400 rounded border border-transparent whitespace-nowrap">
+          <Globe className="w-3 h-3" /> <span className="hidden sm:inline">App</span>
+        </div>
+        <div className="flex-1 flex items-center justify-center gap-1 px-1 py-1.5 text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-400 rounded border border-transparent whitespace-nowrap">
+          <ListTodo className="w-3 h-3" /> <span className="hidden sm:inline">Log</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex items-center gap-3 flex-nowrap shrink-0">
-      <span className={cn("text-[10px] font-bold uppercase tracking-wider min-w-[80px] shrink-0 whitespace-nowrap", textColorClass)}>
-        {label}
-      </span>
-      <div className="flex gap-1.5 flex-nowrap shrink-0">
-        <a
-          href={instance.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={cn(
-            "flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white rounded transition-colors shadow-sm whitespace-nowrap",
-            colorClass
-          )}
-        >
-          <Globe className="w-3.5 h-3.5" />
-          <span>App</span>
-          <ExternalLink className="w-3 h-3 opacity-50" />
-        </a>
-        <a
-          href={instance.logUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 dark:text-slate-200 dark:bg-slate-800 dark:border-slate-700 dark:hover:bg-slate-700 rounded transition-colors shadow-sm whitespace-nowrap"
-        >
-          <ListTodo className="w-3.5 h-3.5 text-slate-500" />
-          <span>Log</span>
-          <ExternalLink className="w-3 h-3 opacity-30" />
-        </a>
-      </div>
+    <div className="flex gap-1">
+      <a
+        href={instance.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={cn(
+          "flex-1 flex items-center justify-center gap-1 px-1 py-1.5 text-[10px] font-medium text-white rounded transition-colors shadow-sm whitespace-nowrap",
+          colorClass
+        )}
+        title="Open App"
+      >
+        <Globe className="w-3 h-3" />
+        <span className="hidden sm:inline">App</span>
+      </a>
+      <a
+        href={instance.logUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex-1 flex items-center justify-center gap-1 px-1 py-1.5 text-[10px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 dark:text-slate-200 dark:bg-slate-800 dark:border-slate-700 dark:hover:bg-slate-700 rounded transition-colors shadow-sm whitespace-nowrap"
+        title="View Logs"
+      >
+        <ListTodo className="w-3 h-3 text-slate-500" />
+        <span className="hidden sm:inline">Log</span>
+      </a>
     </div>
   );
 };
@@ -80,78 +70,85 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
 }) => {
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden">
-      <div className="flex flex-col md:flex-row md:items-center p-4 md:p-5 gap-6">
+      <div className="p-3 sm:p-4">
         {/* Name and Repo Links */}
-        <div className="flex-1 min-w-0 md:max-w-[200px]">
-          <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 truncate mb-3" title={baseName}>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100 truncate mr-2" title={baseName}>
             {baseName}
           </h3>
-          <div className="flex gap-3">
+          <div className="flex gap-3 shrink-0">
             {repoUrl ? (
               <a
                 href={repoUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 text-xs font-medium text-slate-600 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 transition-colors"
+                className="text-slate-500 hover:text-blue-600 transition-colors"
+                title="Repository"
               >
-                <Github className="w-4 h-4" />
-                <span>Repo</span>
+                <Github className="w-4 h-4 sm:w-5 h-5" />
               </a>
             ) : (
-              <span className="flex items-center gap-1.5 text-xs font-medium text-slate-300 dark:text-slate-600 cursor-not-allowed">
-                <Github className="w-4 h-4" />
-                <span>Repo</span>
-              </span>
+              <Github className="w-4 h-4 sm:w-5 h-5 text-slate-200 dark:text-slate-800 cursor-not-allowed" />
             )}
             {issueUrl ? (
               <a
                 href={issueUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 text-xs font-medium text-slate-600 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 transition-colors"
+                className="text-slate-500 hover:text-blue-600 transition-colors"
+                title="Issues"
               >
-                <MessageSquare className="w-4 h-4" />
-                <span>Issues</span>
+                <MessageSquare className="w-4 h-4 sm:w-5 h-5" />
               </a>
             ) : (
-              <span className="flex items-center gap-1.5 text-xs font-medium text-slate-300 dark:text-slate-600 cursor-not-allowed">
-                <MessageSquare className="w-4 h-4" />
-                <span>Issues</span>
-              </span>
+              <MessageSquare className="w-4 h-4 sm:w-5 h-5 text-slate-200 dark:text-slate-800 cursor-not-allowed" />
             )}
           </div>
         </div>
 
-        {/* Instances */}
-        <div className="flex flex-col gap-5 flex-1 min-w-0">
-          <div className="flex flex-nowrap gap-8 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
-            <InstanceLinks
-              label="本番環境"
-              instance={main}
-              colorClass="bg-blue-600 hover:bg-blue-700"
-              textColorClass="text-blue-600"
-            />
-            <InstanceLinks
-              label="テスト環境"
-              instance={test}
-              colorClass="bg-emerald-600 hover:bg-emerald-700"
-              textColorClass="text-emerald-600"
-            />
-          </div>
-          <div className="flex flex-nowrap gap-8 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
-            <InstanceLinks
-              label="イベント"
-              instance={event}
-              colorClass="bg-amber-600 hover:bg-amber-700"
-              textColorClass="text-amber-600"
-            />
-            <InstanceLinks
-              label="イベント(テスト)"
-              instance={testEvent}
-              colorClass="bg-orange-600 hover:bg-orange-700"
-              textColorClass="text-orange-600"
-            />
-          </div>
+        {/* Instances Table */}
+        <div className="overflow-hidden">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr>
+                <th className="text-[10px] font-bold uppercase tracking-wider text-slate-400 text-left pb-2 w-8">環境</th>
+                <th className="text-[10px] font-bold uppercase tracking-wider text-blue-600 text-center pb-2 px-1">本番</th>
+                <th className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 text-center pb-2 px-1">テスト</th>
+              </tr>
+            </thead>
+            <tbody className="space-y-2">
+              <tr>
+                <td className="text-[10px] font-bold text-slate-400 uppercase pr-2 py-1">http</td>
+                <td className="px-1 py-1">
+                  <InstanceButtons
+                    instance={main}
+                    colorClass="bg-blue-600 hover:bg-blue-700"
+                  />
+                </td>
+                <td className="px-1 py-1">
+                  <InstanceButtons
+                    instance={test}
+                    colorClass="bg-emerald-600 hover:bg-emerald-700"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td className="text-[10px] font-bold text-slate-400 uppercase pr-2 py-1">event</td>
+                <td className="px-1 py-1">
+                  <InstanceButtons
+                    instance={event}
+                    colorClass="bg-amber-600 hover:bg-amber-700"
+                  />
+                </td>
+                <td className="px-1 py-1">
+                  <InstanceButtons
+                    instance={testEvent}
+                    colorClass="bg-orange-600 hover:bg-orange-700"
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
