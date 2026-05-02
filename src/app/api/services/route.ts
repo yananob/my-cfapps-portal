@@ -34,6 +34,7 @@ export async function GET() {
           baseName,
           repoUrl: repoInfo?.repoUrl,
           issueUrl: repoInfo?.issueUrl,
+          julesUrl: repoInfo?.julesUrl,
         };
         groupsMap.set(baseName, group);
       }

@@ -11,4 +11,5 @@ export interface ServiceGroup {
   testEvent?: ServiceInstance;
   repoUrl?: string;
   issueUrl?: string;
+  julesUrl?: string;
 }
