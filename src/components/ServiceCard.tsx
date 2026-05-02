@@ -1,5 +1,5 @@
 import React from "react";
-import { Github, MessageSquare, ListTodo, Globe, ExternalLink } from "lucide-react";
+import { Github, MessageSquare, ListTodo, Globe, ExternalLink, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ServiceInstance } from "@/lib/types";
 
@@ -11,6 +11,7 @@ interface ServiceCardProps {
   testEvent?: ServiceInstance;
   repoUrl?: string;
   issueUrl?: string;
+  julesUrl?: string;
 }
 
 const InstanceButtons: React.FC<{
@@ -67,6 +68,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
   testEvent,
   repoUrl,
   issueUrl,
+  julesUrl,
 }) => {
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden">
@@ -102,6 +104,19 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
               </a>
             ) : (
               <MessageSquare className="w-4 h-4 sm:w-5 h-5 text-slate-200 dark:text-slate-800 cursor-not-allowed" />
+            )}
+            {julesUrl ? (
+              <a
+                href={julesUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-slate-500 hover:text-blue-600 transition-colors"
+                title="Jules"
+              >
+                <Zap className="w-4 h-4 sm:w-5 h-5" />
+              </a>
+            ) : (
+              <Zap className="w-4 h-4 sm:w-5 h-5 text-slate-200 dark:text-slate-800 cursor-not-allowed" />
             )}
           </div>
         </div>
