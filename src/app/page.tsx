@@ -133,6 +133,7 @@ export default function Dashboard() {
                   testEvent={group.testEvent}
                   repoUrl={group.repoUrl}
                   issueUrl={group.issueUrl}
+                  julesUrl={group.julesUrl}
                 />
               ))}
             </div>

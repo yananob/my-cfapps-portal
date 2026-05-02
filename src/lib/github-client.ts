@@ -3,6 +3,7 @@ import { Octokit } from "octokit";
 export interface GitHubRepoInfo {
   repoUrl: string;
   issueUrl: string;
+  julesUrl: string;
 }
 
 /**
@@ -35,6 +36,7 @@ export async function getAllReposInfo(): Promise<Map<string, GitHubRepoInfo>> {
       repoMap.set(repo.name, {
         repoUrl: repo.html_url,
         issueUrl: `${repo.html_url}/issues`,
+        julesUrl: `https://jules.google.com/repo/github/${githubOwner}/${repo.name}/`,
       });
     }
     return repoMap;
