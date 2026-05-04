@@ -22,10 +22,10 @@ const InstanceButtons: React.FC<{
     return (
       <div className="flex gap-1 opacity-20 grayscale">
         <div className="flex-1 flex items-center justify-center gap-1 px-1 py-1.5 text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-400 rounded border border-transparent whitespace-nowrap">
-          <Globe className="w-3 h-3" /> <span className="hidden sm:inline">App</span>
+          <Globe className="w-3 h-3" /> <span className="hidden sm:inline">起動</span>
         </div>
         <div className="flex-1 flex items-center justify-center gap-1 px-1 py-1.5 text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-400 rounded border border-transparent whitespace-nowrap">
-          <ListTodo className="w-3 h-3" /> <span className="hidden sm:inline">Log</span>
+          <ListTodo className="w-3 h-3" /> <span className="hidden sm:inline">ログ</span>
         </div>
       </div>
     );
@@ -41,20 +41,20 @@ const InstanceButtons: React.FC<{
           "flex-1 flex items-center justify-center gap-1 px-1 py-1.5 text-[10px] font-medium text-white rounded transition-colors shadow-sm whitespace-nowrap",
           colorClass
         )}
-        title="Open App"
+        title="アプリ起動"
       >
         <Globe className="w-3 h-3" />
-        <span className="hidden sm:inline">App</span>
+        <span className="hidden sm:inline">起動</span>
       </a>
       <a
         href={instance.logUrl}
         target="_blank"
         rel="noopener noreferrer"
         className="flex-1 flex items-center justify-center gap-1 px-1 py-1.5 text-[10px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 dark:text-slate-200 dark:bg-slate-800 dark:border-slate-700 dark:hover:bg-slate-700 rounded transition-colors shadow-sm whitespace-nowrap"
-        title="View Logs"
+        title="ログ表示"
       >
         <ListTodo className="w-3 h-3 text-slate-500" />
-        <span className="hidden sm:inline">Log</span>
+        <span className="hidden sm:inline">ログ</span>
       </a>
     </div>
   );
@@ -122,25 +122,25 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
         </div>
 
         {/* Instances Table */}
-        <div className="overflow-hidden">
-          <table className="w-full border-collapse">
+        <div className="overflow-x-auto sm:overflow-hidden">
+          <table className="w-full border-collapse table-fixed min-w-[300px]">
             <thead>
               <tr>
-                <th className="text-[10px] font-bold uppercase tracking-wider text-slate-400 text-left pb-2 w-8">環境</th>
+                <th className="text-[10px] font-bold uppercase tracking-wider text-slate-400 text-left pb-2 w-10">type</th>
                 <th className="text-[10px] font-bold uppercase tracking-wider text-blue-600 text-center pb-2 px-1">本番</th>
                 <th className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 text-center pb-2 px-1">テスト</th>
               </tr>
             </thead>
-            <tbody className="space-y-2">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               <tr>
-                <td className="text-[10px] font-bold text-slate-400 uppercase pr-2 py-1">http</td>
-                <td className="px-1 py-1">
+                <th className="text-[10px] font-bold text-slate-400 uppercase text-left py-2">http</th>
+                <td className="px-1 py-2">
                   <InstanceButtons
                     instance={main}
                     colorClass="bg-blue-600 hover:bg-blue-700"
                   />
                 </td>
-                <td className="px-1 py-1">
+                <td className="px-1 py-2">
                   <InstanceButtons
                     instance={test}
                     colorClass="bg-emerald-600 hover:bg-emerald-700"
@@ -148,14 +148,14 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
                 </td>
               </tr>
               <tr>
-                <td className="text-[10px] font-bold text-slate-400 uppercase pr-2 py-1">event</td>
-                <td className="px-1 py-1">
+                <th className="text-[10px] font-bold text-slate-400 uppercase text-left py-2">event</th>
+                <td className="px-1 py-2">
                   <InstanceButtons
                     instance={event}
                     colorClass="bg-amber-600 hover:bg-amber-700"
                   />
                 </td>
-                <td className="px-1 py-1">
+                <td className="px-1 py-2">
                   <InstanceButtons
                     instance={testEvent}
                     colorClass="bg-orange-600 hover:bg-orange-700"
