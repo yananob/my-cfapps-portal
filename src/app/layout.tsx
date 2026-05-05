@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     title: "CR Manager",
   },
   icons: {
-    apple: "/icon.svg",
+    apple: "/icon.png",
   },
 };
 
