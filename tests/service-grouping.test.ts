@@ -47,23 +47,6 @@ describe('groupServices', () => {
     expect(result[0].main).toBeUndefined()
   })
 
-  it('matches services with repo names using prefix matching', () => {
-    const services: ServiceListItem[] = [
-      { name: 'oml', url: 'https://oml', logUrl: 'https://logs/oml' },
-      { name: 'oml-test', url: 'https://oml-test', logUrl: 'https://logs/oml-test' },
-    ]
-    const repoMap = new Map([
-      ['oml-empowerd', { repoUrl: 'https://github/oml-empowerd', issueUrl: 'https://github/oml-empowerd/issues', julesUrl: 'https://jules/oml-empowerd' }],
-    ])
-
-    const result = groupServices(services, repoMap)
-
-    expect(result).toHaveLength(1)
-    expect(result[0].baseName).toBe('oml-empowerd')
-    expect(result[0].main?.url).toBe('https://oml')
-    expect(result[0].test?.url).toBe('https://oml-test')
-  })
-
   it('sorts groups by base name', () => {
     const services: ServiceListItem[] = [
       { name: 'z-app', url: 'https://z', logUrl: 'https://logs/z' },

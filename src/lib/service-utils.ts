@@ -36,17 +36,6 @@ export function groupServices(services: ServiceListItem[], repoMap: Map<string, 
     }
 
     let group = groupsMap.get(baseName);
-    if (!group) {
-      // サービス名がリポジトリ名の一部（接頭辞）である場合や、その逆の場合を考慮してマッチング
-      // 例: repo "oml-empowerd" に対して service "oml" を紐付ける
-      const matchedRepoName = Array.from(groupsMap.keys()).find(repoName =>
-        repoName.startsWith(baseName) || baseName.startsWith(repoName)
-      );
-
-      if (matchedRepoName) {
-        group = groupsMap.get(matchedRepoName);
-      }
-    }
 
     if (!group) {
       // リポジトリが見つからない場合でもグループを作成（Cloud Runのみ存在する場合）
