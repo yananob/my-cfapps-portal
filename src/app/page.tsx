@@ -49,7 +49,7 @@ export default function Dashboard() {
       <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-            Cloud Run Services
+            Applications
           </h1>
           {lastUpdated && !error && (
             <p className="text-sm text-slate-500 mt-1">
@@ -63,7 +63,7 @@ export default function Dashboard() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
-              placeholder="Search services..."
+              placeholder="Search applications..."
               className="w-full pl-10 pr-10 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -113,13 +113,13 @@ export default function Dashboard() {
       {loading && serviceGroups.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20">
           <Loader2 className="w-10 h-10 text-blue-500 animate-spin mb-4" />
-          <p className="text-slate-500">Loading services...</p>
+          <p className="text-slate-500">Loading applications...</p>
         </div>
       ) : (
         <>
           {!error && filteredGroups.length === 0 ? (
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-12 text-center">
-              <p className="text-slate-500">No services found.</p>
+              <p className="text-slate-500">No applications found.</p>
             </div>
           ) : (
             <div className="flex flex-col gap-4">

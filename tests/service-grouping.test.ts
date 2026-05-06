@@ -33,6 +33,20 @@ describe('groupServices', () => {
     expect(otherGroup?.repoUrl).toBeUndefined()
   })
 
+  it('includes repositories without any associated services', () => {
+    const services: ServiceListItem[] = []
+    const repoMap = new Map([
+      ['only-repo', { repoUrl: 'https://github/only-repo', issueUrl: 'https://github/only-repo/issues', julesUrl: 'https://jules/only-repo' }],
+    ])
+
+    const result = groupServices(services, repoMap)
+
+    expect(result).toHaveLength(1)
+    expect(result[0].baseName).toBe('only-repo')
+    expect(result[0].repoUrl).toBe('https://github/only-repo')
+    expect(result[0].main).toBeUndefined()
+  })
+
   it('sorts groups by base name', () => {
     const services: ServiceListItem[] = [
       { name: 'z-app', url: 'https://z', logUrl: 'https://logs/z' },
