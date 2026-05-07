@@ -9,6 +9,17 @@ export interface ServiceListItem {
 export function groupServices(services: ServiceListItem[], repoMap: Map<string, { repoUrl: string; issueUrl: string; julesUrl: string }>): ServiceGroup[] {
   const groupsMap = new Map<string, ServiceGroup>();
 
+  // 1. GitHubリポジトリをベースに初期グループを作成
+  for (const [name, repoInfo] of repoMap.entries()) {
+    groupsMap.set(name, {
+      baseName: name,
+      repoUrl: repoInfo.repoUrl,
+      issueUrl: repoInfo.issueUrl,
+      julesUrl: repoInfo.julesUrl,
+    });
+  }
+
+  // 2. Cloud Runサービスを各グループに割り当て
   for (const service of services) {
     let baseName = service.name;
     let type: "main" | "test" | "event" | "testEvent" = "main";
@@ -25,13 +36,11 @@ export function groupServices(services: ServiceListItem[], repoMap: Map<string, 
     }
 
     let group = groupsMap.get(baseName);
+
     if (!group) {
-      const repoInfo = repoMap.get(baseName);
+      // リポジトリが見つからない場合でもグループを作成（Cloud Runのみ存在する場合）
       group = {
         baseName,
-        repoUrl: repoInfo?.repoUrl,
-        issueUrl: repoInfo?.issueUrl,
-        julesUrl: repoInfo?.julesUrl,
       };
       groupsMap.set(baseName, group);
     }
