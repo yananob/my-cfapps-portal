@@ -33,6 +33,9 @@ export async function getAllReposInfo(): Promise<Map<string, GitHubRepoInfo>> {
 
     const repoMap = new Map<string, GitHubRepoInfo>();
     for (const repo of repos) {
+      // アーカイブされたリポジトリを除外
+      if (repo.archived) continue;
+
       repoMap.set(repo.name, {
         repoUrl: repo.html_url,
         issueUrl: `${repo.html_url}/issues`,
