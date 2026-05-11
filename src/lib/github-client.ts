@@ -21,14 +21,15 @@ export async function getAllReposInfo(): Promise<Map<string, GitHubRepoInfo>> {
   const octokit = new Octokit({ auth: githubPat });
 
   try {
-    const repos = await octokit.paginate(octokit.rest.repos.listForOrg, {
-      org: githubOwner,
+    // 認証ユーザーがアクセス可能なすべてのリポジトリを取得（パブリック・プライベート両方）
+    const allRepos = await octokit.paginate(octokit.rest.repos.listForAuthenticatedUser, {
+      visibility: "all",
       per_page: 100,
-    }).catch(() =>
-      octokit.paginate(octokit.rest.repos.listForUser, {
-        username: githubOwner,
-        per_page: 100,
-      })
+    });
+
+    // 指定されたオーナー（ユーザーまたは組織）のリポジトリのみにフィルタリング
+    const repos = allRepos.filter(
+      (repo) => repo.owner.login.toLowerCase() === githubOwner.toLowerCase()
     );
 
     const repoMap = new Map<string, GitHubRepoInfo>();
