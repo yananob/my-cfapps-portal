@@ -1,5 +1,5 @@
 import React from "react";
-import { Github, MessageSquare, ListTodo, Globe, ExternalLink, Zap } from "lucide-react";
+import { Github, MessageSquare, ListTodo, Globe, ExternalLink, Zap, Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ServiceInstance } from "@/lib/types";
 
@@ -12,6 +12,8 @@ interface ServiceCardProps {
   repoUrl?: string;
   issueUrl?: string;
   julesUrl?: string;
+  isHidden?: boolean;
+  onToggleHide?: (baseName: string) => void;
 }
 
 const InstanceButtons: React.FC<{
@@ -69,15 +71,35 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
   repoUrl,
   issueUrl,
   julesUrl,
+  isHidden = false,
+  onToggleHide,
 }) => {
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden">
+    <div className={cn(
+      "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden",
+      isHidden && "opacity-60 grayscale-[0.5]"
+    )}>
       <div className="p-3 sm:p-4">
         {/* Name and Repo Links */}
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100 truncate mr-2" title={baseName}>
-            {baseName}
-          </h3>
+          <div className="flex items-center gap-2 min-w-0">
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100 truncate" title={baseName}>
+              {baseName}
+            </h3>
+            {onToggleHide && (
+              <button
+                onClick={() => onToggleHide(baseName)}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors shrink-0"
+                title={isHidden ? "表示する" : "非表示にする"}
+              >
+                {isHidden ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
+              </button>
+            )}
+          </div>
           <div className="flex gap-4 shrink-0">
             {repoUrl ? (
               <a
