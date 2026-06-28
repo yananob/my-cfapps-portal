@@ -78,45 +78,45 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
           <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100 truncate mr-2" title={baseName}>
             {baseName}
           </h3>
-          <div className="flex gap-3 shrink-0">
+          <div className="flex gap-4 shrink-0">
             {repoUrl ? (
               <a
                 href={repoUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-slate-500 hover:text-blue-600 transition-colors"
+                className="text-slate-500 hover:text-blue-600 transition-colors p-1 -m-1"
                 title="Repository"
               >
-                <Github className="w-4 h-4 sm:w-5 h-5" />
+                <Github className="w-5 h-5 sm:w-6 h-6" />
               </a>
             ) : (
-              <Github className="w-4 h-4 sm:w-5 h-5 text-slate-200 dark:text-slate-800 cursor-not-allowed" />
+              <Github className="w-5 h-5 sm:w-6 h-6 text-slate-200 dark:text-slate-800 cursor-not-allowed" />
             )}
             {issueUrl ? (
               <a
                 href={issueUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-slate-500 hover:text-blue-600 transition-colors"
+                className="text-slate-500 hover:text-blue-600 transition-colors p-1 -m-1"
                 title="Issues"
               >
-                <MessageSquare className="w-4 h-4 sm:w-5 h-5" />
+                <MessageSquare className="w-5 h-5 sm:w-6 h-6" />
               </a>
             ) : (
-              <MessageSquare className="w-4 h-4 sm:w-5 h-5 text-slate-200 dark:text-slate-800 cursor-not-allowed" />
+              <MessageSquare className="w-5 h-5 sm:w-6 h-6 text-slate-200 dark:text-slate-800 cursor-not-allowed" />
             )}
             {julesUrl ? (
               <a
                 href={julesUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-slate-500 hover:text-blue-600 transition-colors"
+                className="text-slate-500 hover:text-blue-600 transition-colors p-1 -m-1"
                 title="Jules"
               >
-                <Zap className="w-4 h-4 sm:w-5 h-5" />
+                <Zap className="w-5 h-5 sm:w-6 h-6" />
               </a>
             ) : (
-              <Zap className="w-4 h-4 sm:w-5 h-5 text-slate-200 dark:text-slate-800 cursor-not-allowed" />
+              <Zap className="w-5 h-5 sm:w-6 h-6 text-slate-200 dark:text-slate-800 cursor-not-allowed" />
             )}
           </div>
         </div>

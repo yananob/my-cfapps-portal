@@ -10,8 +10,9 @@ export function groupServices(services: ServiceListItem[], repoMap: Map<string, 
   const groupsMap = new Map<string, ServiceGroup>();
 
   // 1. GitHubリポジトリをベースに初期グループを作成
+  // マッチングを容易にするため、キーは小文字で保持する
   for (const [name, repoInfo] of repoMap.entries()) {
-    groupsMap.set(name, {
+    groupsMap.set(name.toLowerCase(), {
       baseName: name,
       repoUrl: repoInfo.repoUrl,
       issueUrl: repoInfo.issueUrl,
@@ -35,14 +36,16 @@ export function groupServices(services: ServiceListItem[], repoMap: Map<string, 
       type = "event";
     }
 
-    let group = groupsMap.get(baseName);
+    // Cloud Runサービス名は小文字なので、小文字でマッチングを行う
+    const lookupKey = baseName.toLowerCase();
+    let group = groupsMap.get(lookupKey);
 
     if (!group) {
       // リポジトリが見つからない場合でもグループを作成（Cloud Runのみ存在する場合）
       group = {
         baseName,
       };
-      groupsMap.set(baseName, group);
+      groupsMap.set(lookupKey, group);
     }
 
     group[type] = {
