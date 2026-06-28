@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Search, Loader2, RefreshCw, AlertCircle, X } from "lucide-react";
+import { Search, Loader2, RefreshCw, AlertCircle, X, Eye, EyeOff } from "lucide-react";
 import { ServiceCard } from "@/components/ServiceCard";
 import { cn } from "@/lib/utils";
 import { ServiceGroup } from "@/lib/types";
@@ -12,17 +12,42 @@ export default function Dashboard() {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
+  const [showHidden, setShowHidden] = useState(false);
 
-  const fetchServices = async () => {
+  const CACHE_KEY = "my-cfapps-portal-cache";
+  const CACHE_TIME_KEY = "my-cfapps-portal-cache-time";
+  const HIDDEN_KEY = "my-cfapps-portal-hidden";
+
+  const fetchServices = async (useCache = true) => {
     setLoading(true);
     setError(null);
+
+    // キャッシュの読み込み
+    if (useCache) {
+      const cachedData = localStorage.getItem(CACHE_KEY);
+      const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
+      if (cachedData && cachedTime) {
+        setServiceGroups(JSON.parse(cachedData));
+        setLastUpdated(new Date(parseInt(cachedTime)));
+        setLoading(false);
+        // キャッシュがある場合はバックグラウンドで更新するなどの検討もできるが、
+        // ユーザーの要望「最新化にはリロードボタン押下」に従い、ここでは終了する
+        return;
+      }
+    }
+
     try {
       const response = await fetch("/api/services");
       const data = await response.json();
 
       if (response.ok) {
         setServiceGroups(data);
-        setLastUpdated(new Date());
+        const now = new Date();
+        setLastUpdated(now);
+        // キャッシュの保存
+        localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+        localStorage.setItem(CACHE_TIME_KEY, now.getTime().toString());
       } else {
         setError(data.error || "Failed to fetch services");
       }
@@ -35,14 +60,46 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    fetchServices();
+    fetchServices(true);
+    // 非表示リストの読み込み
+    const savedHidden = localStorage.getItem(HIDDEN_KEY);
+    if (savedHidden) {
+      try {
+        setHiddenIds(new Set(JSON.parse(savedHidden)));
+      } catch (e) {
+        console.error("Failed to parse hidden IDs:", e);
+      }
+    }
   }, []);
 
+  const toggleHide = (baseName: string) => {
+    setHiddenIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(baseName)) {
+        next.delete(baseName);
+      } else {
+        next.add(baseName);
+      }
+      localStorage.setItem(HIDDEN_KEY, JSON.stringify(Array.from(next)));
+      return next;
+    });
+  };
+
   const filteredGroups = useMemo(() => {
-    return serviceGroups.filter((group) =>
-      group.baseName.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [serviceGroups, searchQuery]);
+    return serviceGroups
+      .filter((group) =>
+        group.baseName.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      .filter((group) => showHidden || !hiddenIds.has(group.baseName))
+      .sort((a, b) => {
+        // 非表示のものを下に持ってくる
+        const aHidden = hiddenIds.has(a.baseName);
+        const bHidden = hiddenIds.has(b.baseName);
+        if (aHidden && !bHidden) return 1;
+        if (!aHidden && bHidden) return -1;
+        return 0;
+      });
+  }, [serviceGroups, searchQuery, hiddenIds, showHidden]);
 
   return (
     <main className="container mx-auto px-4 py-8 max-w-7xl">
@@ -82,14 +139,32 @@ export default function Dashboard() {
               </button>
             )}
           </div>
-          <button
-            onClick={fetchServices}
-            disabled={loading}
-            className="p-2 text-slate-600 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 disabled:opacity-50 transition-colors"
-            title="Refresh list"
-          >
-            <RefreshCw className={cn("w-5 h-5", loading && "animate-spin")} />
-          </button>
+          <div className="flex items-center gap-1 border-l border-slate-200 dark:border-slate-800 ml-2 pl-2">
+            <button
+              onClick={() => setShowHidden(!showHidden)}
+              className={cn(
+                "p-2 transition-colors rounded-md",
+                showHidden
+                  ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20"
+                  : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              )}
+              title={showHidden ? "非表示アイテムを隠す" : "非表示アイテムを表示"}
+            >
+              {showHidden ? (
+                <Eye className="w-5 h-5" />
+              ) : (
+                <EyeOff className="w-5 h-5" />
+              )}
+            </button>
+            <button
+              onClick={() => fetchServices(false)}
+              disabled={loading}
+              className="p-2 text-slate-600 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 disabled:opacity-50 transition-colors"
+              title="Refresh list"
+            >
+              <RefreshCw className={cn("w-5 h-5", loading && "animate-spin")} />
+            </button>
+          </div>
         </div>
       </header>
 
@@ -134,6 +209,8 @@ export default function Dashboard() {
                   repoUrl={group.repoUrl}
                   issueUrl={group.issueUrl}
                   julesUrl={group.julesUrl}
+                  isHidden={hiddenIds.has(group.baseName)}
+                  onToggleHide={toggleHide}
                 />
               ))}
             </div>
