@@ -58,4 +58,24 @@ describe('groupServices', () => {
     expect(result[0].baseName).toBe('a-app')
     expect(result[1].baseName).toBe('z-app')
   })
+
+  it('matches repository names and service names case-insensitively', () => {
+    const services: ServiceListItem[] = [
+      { name: 'my-project', url: 'https://my-project', logUrl: 'https://logs/my-project' },
+      { name: 'my-project-test', url: 'https://my-project-test', logUrl: 'https://logs/my-project-test' },
+    ]
+
+    const repoMap = new Map([
+      ['My-Project', { repoUrl: 'https://github/My-Project', issueUrl: 'https://github/My-Project/issues', julesUrl: 'https://jules/My-Project' }],
+    ])
+
+    const result = groupServices(services, repoMap)
+
+    expect(result).toHaveLength(1)
+    const group = result[0]
+    expect(group.baseName).toBe('My-Project') // Should preserve original repo casing for display
+    expect(group.repoUrl).toBe('https://github/My-Project')
+    expect(group.main?.url).toBe('https://my-project')
+    expect(group.test?.url).toBe('https://my-project-test')
+  })
 })
