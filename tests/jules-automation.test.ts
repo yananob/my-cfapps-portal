@@ -8,7 +8,7 @@ import {
   getLastBatchExecutedTime,
   updateLastBatchExecutedTime,
 } from "@/lib/firestore-client";
-import { getRepoDefaultBranch } from "@/lib/github-client";
+import { getRepoDefaultBranch, getAllReposInfo } from "@/lib/github-client";
 import { POST } from "@/app/api/jules-automation/route";
 import { NextRequest } from "next/server";
 
@@ -21,6 +21,7 @@ vi.mock("@/lib/jules-client", () => ({
 // GitHubクライアントの依存モジュールをモック
 vi.mock("@/lib/github-client", () => ({
   getRepoDefaultBranch: vi.fn(),
+  getAllReposInfo: vi.fn(),
 }));
 
 // Firestoreクライアントの依存モジュールをモック
@@ -71,6 +72,15 @@ describe("Jules Automation API エンドポイントのテスト", () => {
     vi.mocked(getLastBatchExecutedTime).mockResolvedValue(null);
     vi.mocked(updateLastBatchExecutedTime).mockResolvedValue(undefined);
     vi.mocked(getRepoDefaultBranch).mockResolvedValue("test");
+
+    const defaultReposMap = new Map([
+      ["app-one", { repoUrl: "", issueUrl: "", julesUrl: "" }],
+      ["app-two", { repoUrl: "", issueUrl: "", julesUrl: "" }],
+      ["app-three", { repoUrl: "", issueUrl: "", julesUrl: "" }],
+      ["app-four", { repoUrl: "", issueUrl: "", julesUrl: "" }],
+      ["_template", { repoUrl: "", issueUrl: "", julesUrl: "" }],
+    ]);
+    vi.mocked(getAllReposInfo).mockResolvedValue(defaultReposMap as any);
   });
 
   const createRequest = (
@@ -343,6 +353,36 @@ describe("Jules Automation API エンドポイントのテスト", () => {
 
     // app-one が除外され、app-two のみが選択されること
     expect(body.selectedRepos).toEqual(["app-two"]);
+  });
+
+  it("アーカイブされたリポジトリおよびGitHub一覧（getAllReposInfo）に存在しないリポジトリは Jules 自動化処理対象外となること", async () => {
+    const mockSources = [
+      {
+        name: "sources/github/test-owner/app-active",
+        id: "github/test-owner/app-active",
+        githubRepo: { owner: "test-owner", repo: "app-active" },
+      },
+      {
+        name: "sources/github/test-owner/app-archived",
+        id: "github/test-owner/app-archived",
+        githubRepo: { owner: "test-owner", repo: "app-archived" },
+      },
+    ];
+
+    vi.mocked(listAllJulesSources).mockResolvedValue(mockSources);
+
+    // getAllReposInfo の返り値には app-active のみを設定（app-archived はアーカイブされているため含まれない想定）
+    const activeReposMap = new Map([
+      ["app-active", { repoUrl: "", issueUrl: "", julesUrl: "" }],
+    ]);
+    vi.mocked(getAllReposInfo).mockResolvedValue(activeReposMap as any);
+
+    const request = createRequest("Bearer test-cron-secret", "http://localhost/api/jules-automation?dryRun=true&limit=2");
+    const response = await POST(request);
+    const body = await response.json();
+
+    // app-archived が除外され、app-active のみが選択されること
+    expect(body.selectedRepos).toEqual(["app-active"]);
   });
 
   it("Pub/Sub メッセージボディ内のパラメータを正しく処理できること", async () => {

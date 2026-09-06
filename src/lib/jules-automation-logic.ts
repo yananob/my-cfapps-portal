@@ -6,7 +6,7 @@ import {
   getLastBatchExecutedTime,
   updateLastBatchExecutedTime,
 } from "./firestore-client";
-import { getRepoDefaultBranch } from "./github-client";
+import { getRepoDefaultBranch, getAllReposInfo } from "./github-client";
 
 /**
  * Jules 自動化処理のオプション
@@ -70,15 +70,22 @@ export async function executeJulesAutomation(
     };
   }
 
+  // GitHub からアクティブなリポジトリ一覧（アーカイブ済みを除く）を取得
+  const activeReposMap = await getAllReposInfo();
+  const activeReposSet = new Set(
+    Array.from(activeReposMap.keys()).map((r) => r.toLowerCase())
+  );
+
   // Firestore から非表示リポジトリを取得し、除外対象を判定
   const hiddenReposList = await getHiddenRepos();
   const hiddenReposSet = new Set(hiddenReposList.map((r) => r.toLowerCase()));
 
-  // テンプレートリポジトリ（_template）および非表示リポジトリを自動リファクタリングの対象から除外
+  // テンプレートリポジトリ（_template）、非表示リポジトリ、アーカイブ済み/非アクティブなリポジトリを自動リファクタリングの対象から除外
   const targetSources = ownerSources.filter((source) => {
     const repoName = source.githubRepo?.repo.toLowerCase() || "";
     if (repoName === "_template") return false;
     if (hiddenReposSet.has(repoName)) return false;
+    if (!activeReposSet.has(repoName)) return false;
     return true;
   });
 
