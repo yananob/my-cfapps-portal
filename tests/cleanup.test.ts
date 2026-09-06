@@ -11,6 +11,13 @@ vi.mock("@/lib/jules-client", () => ({
   createJulesSession: vi.fn(),
 }));
 
+vi.mock("@/lib/github-client", () => ({
+  getRepoDefaultBranch: vi.fn().mockResolvedValue("test"),
+  getAllReposInfo: vi.fn().mockResolvedValue(new Map([
+    ["app-one", { repoUrl: "", issueUrl: "", julesUrl: "" }],
+  ])),
+}));
+
 vi.mock("@/lib/firestore-client", () => ({
   getRepoLastExecutedTimes: vi.fn(),
   updateRepoLastExecutedTime: vi.fn(),
