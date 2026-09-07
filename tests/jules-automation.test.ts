@@ -1,5 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { listAllJulesSources, createJulesSession } from "@/lib/jules-client";
+import {
+  listAllJulesSources,
+  createJulesSession,
+  listAllJulesSessions,
+  getRemainingSessionCapacity,
+} from "@/lib/jules-client";
 import {
   getRepoLastExecutedTimes,
   updateRepoLastExecutedTime,
@@ -16,6 +21,8 @@ import { NextRequest } from "next/server";
 vi.mock("@/lib/jules-client", () => ({
   listAllJulesSources: vi.fn(),
   createJulesSession: vi.fn(),
+  listAllJulesSessions: vi.fn(),
+  getRemainingSessionCapacity: vi.fn(),
 }));
 
 // GitHubクライアントの依存モジュールをモック
@@ -39,6 +46,72 @@ vi.mock("@/lib/firestore-client", () => ({
     return "myapps-portal";
   },
 }));
+
+describe("Jules Client Functions (Actual)", () => {
+  it("listAllJulesSessions が fetch を使用して全セッションを取得すること", async () => {
+    const { listAllJulesSessions } = await vi.importActual<typeof import("@/lib/jules-client")>("@/lib/jules-client");
+
+    const mockFetch = vi.fn().mockImplementation(async (urlStr: string) => {
+      const url = new URL(urlStr);
+      const pageToken = url.searchParams.get("pageToken");
+      if (!pageToken) {
+        return {
+          ok: true,
+          status: 200,
+          statusText: "OK",
+          json: async () => ({
+            sessions: [{ name: "sessions/1", id: "1", title: "s1", prompt: "p1", sourceContext: { source: "src1" } }],
+            nextPageToken: "page2",
+          }),
+        };
+      } else {
+        return {
+          ok: true,
+          status: 200,
+          statusText: "OK",
+          json: async () => ({
+            sessions: [{ name: "sessions/2", id: "2", title: "s2", prompt: "p2", sourceContext: { source: "src2" } }],
+          }),
+        };
+      }
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    const sessions = await listAllJulesSessions("test-api-key");
+    expect(sessions).toHaveLength(2);
+    expect(sessions[0].id).toBe("1");
+    expect(sessions[1].id).toBe("2");
+
+    vi.unstubAllGlobals();
+  });
+
+  it("getRemainingSessionCapacity が直近24時間のセッション数を元に残容量を正しく計算すること", async () => {
+    const { getRemainingSessionCapacity } = await vi.importActual<typeof import("@/lib/jules-client")>("@/lib/jules-client");
+    const now = Date.now();
+    const mockSessions = [
+      { name: "sessions/1", id: "1", title: "s1", prompt: "p1", sourceContext: { source: "src1" }, createTime: new Date(now - 1 * 60 * 60 * 1000).toISOString() },
+      { name: "sessions/2", id: "2", title: "s2", prompt: "p2", sourceContext: { source: "src2" }, createTime: new Date(now - 5 * 60 * 60 * 1000).toISOString() },
+      { name: "sessions/3", id: "3", title: "s3", prompt: "p3", sourceContext: { source: "src3" }, createTime: new Date(now - 30 * 60 * 60 * 1000).toISOString() },
+    ];
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      statusText: "OK",
+      json: async () => ({
+        sessions: mockSessions,
+      }),
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    const remaining = await getRemainingSessionCapacity("test-api-key");
+    expect(remaining).toBe(13);
+
+    vi.unstubAllGlobals();
+  });
+});
 
 describe("getRootCollectionName のテスト", () => {
   const originalEnv = process.env.APP_ENV;
@@ -64,6 +137,10 @@ describe("Jules Automation API エンドポイントのテスト", () => {
     process.env.CRON_SECRET = "test-cron-secret";
     process.env.JULES_API_KEY = "test-jules-key";
     process.env.GITHUB_OWNER = "test-owner";
+
+    // Jules クライアントのデフォルトモック
+    vi.mocked(getRemainingSessionCapacity).mockResolvedValue(15);
+    vi.mocked(listAllJulesSessions).mockResolvedValue([]);
 
     // FirestoreおよびGitHubのデフォルトモック
     vi.mocked(getRepoLastExecutedTimes).mockResolvedValue({});
@@ -512,5 +589,54 @@ describe("Jules Automation API エンドポイントのテスト", () => {
     const body = await response.json();
     expect(body.dryRun).toBe(true);
     expect(body.selectedRepos).toEqual(["app-one"]);
+  });
+
+  it("残容量が10未満（例: 9）の場合、dryRun=false でのバッチ実行がスキップ(skipped=true)されること", async () => {
+    const mockSources = [
+      {
+        name: "sources/github/test-owner/app-one",
+        id: "github/test-owner/app-one",
+        githubRepo: { owner: "test-owner", repo: "app-one" },
+      },
+    ];
+    vi.mocked(listAllJulesSources).mockResolvedValue(mockSources);
+    vi.mocked(getRemainingSessionCapacity).mockResolvedValue(9);
+
+    const request = createRequest("Bearer test-cron-secret", "http://localhost/api/jules-automation?dryRun=false");
+    const response = await POST(request);
+    expect(response.status).toBe(200);
+
+    const body = await response.json();
+    expect(body.skipped).toBe(true);
+    expect(body.message).toContain("insufficient session capacity");
+    expect(createJulesSession).not.toHaveBeenCalled();
+  });
+
+  it("残容量が10以上（例: 10）の場合、dryRun=false でのバッチ実行が正常に実行されること", async () => {
+    const mockSources = [
+      {
+        name: "sources/github/test-owner/app-one",
+        id: "github/test-owner/app-one",
+        githubRepo: { owner: "test-owner", repo: "app-one" },
+      },
+    ];
+    vi.mocked(listAllJulesSources).mockResolvedValue(mockSources);
+    vi.mocked(getRemainingSessionCapacity).mockResolvedValue(10);
+    vi.mocked(createJulesSession).mockResolvedValue({
+      name: "sessions/mock-session",
+      id: "mock-id",
+      title: "mock",
+      prompt: "mock",
+      sourceContext: { source: "sources/github/test-owner/app-one" },
+    });
+
+    const request = createRequest("Bearer test-cron-secret", "http://localhost/api/jules-automation?dryRun=false");
+    const response = await POST(request);
+    expect(response.status).toBe(200);
+
+    const body = await response.json();
+    expect(body.skipped).toBeUndefined();
+    expect(body.succeeded).toHaveLength(1);
+    expect(createJulesSession).toHaveBeenCalledTimes(1);
   });
 });

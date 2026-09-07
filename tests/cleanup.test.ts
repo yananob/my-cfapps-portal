@@ -9,6 +9,8 @@ vi.mock("@/lib/gcp-client", () => ({
 vi.mock("@/lib/jules-client", () => ({
   listAllJulesSources: vi.fn(),
   createJulesSession: vi.fn(),
+  listAllJulesSessions: vi.fn().mockResolvedValue([]),
+  getRemainingSessionCapacity: vi.fn().mockResolvedValue(15),
 }));
 
 vi.mock("@/lib/github-client", () => ({

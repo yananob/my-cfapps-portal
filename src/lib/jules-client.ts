@@ -37,6 +37,7 @@ export interface JulesSession {
       startingBranch?: string;
     };
   };
+  createTime?: string;
 }
 
 /**
@@ -93,6 +94,77 @@ export async function listAllJulesSources(apiKey: string): Promise<JulesSource[]
 
   console.log(`[JulesClient] Jules ソース一覧の取得に成功しました。合計: ${sources.length}件`);
   return sources;
+}
+
+/**
+ * Jules API に存在するすべてのセッション一覧を取得します。
+ * ページネーションを自動的に処理して全件取得します。
+ *
+ * @param apiKey Jules API キー
+ * @returns 取得されたセッションの配列
+ */
+export async function listAllJulesSessions(apiKey: string): Promise<JulesSession[]> {
+  let sessions: JulesSession[] = [];
+  let pageToken = "";
+
+  console.log(`[JulesClient] Jules セッション一覧の取得を開始します... (ApiKey: ${maskApiKey(apiKey)})`);
+
+  do {
+    const url = new URL("https://jules.googleapis.com/v1alpha/sessions");
+    if (pageToken) {
+      url.searchParams.set("pageToken", pageToken);
+    }
+
+    console.log(`[JulesClient] GET Request -> ${url.toString()}`);
+
+    const res = await fetch(url.toString(), {
+      method: "GET",
+      headers: {
+        "X-Goog-Api-Key": apiKey,
+      },
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error(`[JulesClient] Jules API セッション一覧の取得に失敗しました: Status=${res.status} ${res.statusText}, URL=${url.toString()}, Response=${errText}`);
+      throw new Error(`Jules API セッション一覧の取得に失敗しました: ${res.status} ${res.statusText} - ${errText}`);
+    }
+
+    const data = await res.json();
+    console.log(`[JulesClient] GET Response <- ${res.status} ${res.statusText}, SessionsCount=${data.sessions?.length || 0}, NextPageToken=${data.nextPageToken || "none"}`);
+
+    if (data.sessions) {
+      sessions = sessions.concat(data.sessions);
+    }
+    pageToken = data.nextPageToken || "";
+  } while (pageToken);
+
+  console.log(`[JulesClient] Jules セッション一覧の取得に成功しました。合計: ${sessions.length}件`);
+  return sessions;
+}
+
+/**
+ * 直近24時間（ローリングウィンドウ）に作成された Jules セッション数を計算し、
+ * 残り作成可能なセッション数を返します（最大上限15セッション）。
+ *
+ * @param apiKey Jules API キー
+ * @returns 残り作成可能なセッション数 (0〜15)
+ */
+export async function getRemainingSessionCapacity(apiKey: string): Promise<number> {
+  const MAX_SESSIONS_24H = 15;
+  const sessions = await listAllJulesSessions(apiKey);
+  const now = Date.now();
+  const twentyFourHoursAgo = now - 24 * 60 * 60 * 1000;
+
+  const recentSessions = sessions.filter((session) => {
+    if (!session.createTime) return false;
+    const createTime = new Date(session.createTime).getTime();
+    return !isNaN(createTime) && createTime >= twentyFourHoursAgo;
+  });
+
+  const remaining = MAX_SESSIONS_24H - recentSessions.length;
+  console.log(`[JulesClient] 直近24時間のセッション数: ${recentSessions.length} / ${MAX_SESSIONS_24H}, 残り作成枠: ${remaining}`);
+  return Math.max(0, remaining);
 }
 
 /**
