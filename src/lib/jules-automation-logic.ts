@@ -1,4 +1,4 @@
-import { listAllJulesSources, createJulesSession } from "./jules-client";
+import { listAllJulesSources, createJulesSession, getRemainingSessionCapacity } from "./jules-client";
 import {
   getRepoLastExecutedTimes,
   updateRepoLastExecutedTime,
@@ -155,6 +155,19 @@ export async function executeJulesAutomation(
       sessions: sessionsToCreate,
       selectedRepos: selectedTargetSources.map((s) => s.githubRepo?.repo || ""),
       dryRun: true,
+    };
+  }
+
+  // 24時間以内の残容量チェック（残容量10未満の場合はバッチ処理をスキップ）
+  const remainingCapacity = await getRemainingSessionCapacity(julesApiKey);
+  if (remainingCapacity < 10) {
+    console.log(`[Jules Automation] 直近24時間の残りセッション作成可能数 (${remainingCapacity}) が 10 未満のため、バッチ処理をスキップします。`);
+    return {
+      message: `Jules automation skipped: insufficient session capacity (${remainingCapacity} remaining, minimum required is 10).`,
+      succeeded: [],
+      failed: [],
+      dryRun: false,
+      skipped: true,
     };
   }
 
