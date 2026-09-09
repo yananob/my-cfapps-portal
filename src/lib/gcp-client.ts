@@ -13,6 +13,7 @@ export interface CloudRunService {
   name: string;
   url: string;
   logUrl: string;
+  testingUrl: string;
   updatedAt: Date;
 }
 
@@ -34,6 +35,7 @@ export async function getCloudRunServices(): Promise<CloudRunService[]> {
       const name = service.name?.split("/").pop() || "";
       const url = service.uri || "";
       const logUrl = `https://console.cloud.google.com/run/observability/${region}/${name}/logs?project=${projectId}&supportedpurview=project`;
+      const testingUrl = `https://console.cloud.google.com/run/detail/${region}/${name}/testing?project=${projectId}`;
 
       // Convert ITimestamp to Date
       const seconds = service.updateTime?.seconds;
@@ -43,6 +45,7 @@ export async function getCloudRunServices(): Promise<CloudRunService[]> {
         name,
         url,
         logUrl,
+        testingUrl,
         updatedAt,
       };
     });

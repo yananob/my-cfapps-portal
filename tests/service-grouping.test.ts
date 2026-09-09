@@ -4,11 +4,11 @@ import { groupServices, ServiceListItem } from '../src/lib/service-utils'
 describe('groupServices', () => {
   it('groups services by base name correctly', () => {
     const services: ServiceListItem[] = [
-      { name: 'app', url: 'https://app', logUrl: 'https://logs/app' },
-      { name: 'app-test', url: 'https://app-test', logUrl: 'https://logs/app-test' },
-      { name: 'app-event', url: 'https://app-event', logUrl: 'https://logs/app-event' },
-      { name: 'app-test-event', url: 'https://app-test-event', logUrl: 'https://logs/app-test-event' },
-      { name: 'other', url: 'https://other', logUrl: 'https://logs/other' },
+      { name: 'app', url: 'https://app', logUrl: 'https://logs/app', testingUrl: 'https://testing/app' },
+      { name: 'app-test', url: 'https://app-test', logUrl: 'https://logs/app-test', testingUrl: 'https://testing/app-test' },
+      { name: 'app-event', url: 'https://app-event', logUrl: 'https://logs/app-event', testingUrl: 'https://testing/app-event' },
+      { name: 'app-test-event', url: 'https://app-test-event', logUrl: 'https://logs/app-test-event', testingUrl: 'https://testing/app-test-event' },
+      { name: 'other', url: 'https://other', logUrl: 'https://logs/other', testingUrl: 'https://testing/other' },
     ]
 
     const repoMap = new Map([
@@ -24,7 +24,9 @@ describe('groupServices', () => {
     expect(appGroup?.main?.url).toBe('https://app')
     expect(appGroup?.test?.url).toBe('https://app-test')
     expect(appGroup?.event?.url).toBe('https://app-event')
+    expect(appGroup?.event?.testingUrl).toBe('https://testing/app-event')
     expect(appGroup?.testEvent?.url).toBe('https://app-test-event')
+    expect(appGroup?.testEvent?.testingUrl).toBe('https://testing/app-test-event')
     expect(appGroup?.repoUrl).toBe('https://github/app')
     expect(appGroup?.hasDependabotAlerts).toBe(true)
     expect(appGroup?.dependabotAlertsCount).toBe(3)
