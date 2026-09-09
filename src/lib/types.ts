@@ -1,6 +1,7 @@
 export interface ServiceInstance {
   url: string;
   logUrl: string;
+  testingUrl?: string;
 }
 
 export interface ServiceGroup {

@@ -1,5 +1,5 @@
 import React from "react";
-import { Github, MessageSquare, ListTodo, Globe, ExternalLink, Zap, Eye, EyeOff, ShieldAlert } from "lucide-react";
+import { Github, MessageSquare, ListTodo, Globe, ExternalLink, Zap, Eye, EyeOff, ShieldAlert, FlaskConical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ServiceInstance } from "@/lib/types";
 
@@ -22,12 +22,14 @@ interface ServiceCardProps {
 const InstanceButtons: React.FC<{
   instance?: ServiceInstance;
   colorClass: string;
-}> = ({ instance, colorClass }) => {
+  isEvent?: boolean;
+}> = ({ instance, colorClass, isEvent }) => {
   if (!instance) {
     return (
       <div className="flex gap-1 opacity-20 grayscale">
         <div className="flex-1 flex items-center justify-center gap-1 px-1 py-1.5 text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-400 rounded border border-transparent whitespace-nowrap">
-          <Globe className="w-3 h-3" /> <span className="hidden sm:inline">App</span>
+          {isEvent ? <FlaskConical className="w-3 h-3" /> : <Globe className="w-3 h-3" />}
+          <span className="hidden sm:inline">{isEvent ? "Test" : "App"}</span>
         </div>
         <div className="flex-1 flex items-center justify-center gap-1 px-1 py-1.5 text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-400 rounded border border-transparent whitespace-nowrap">
           <ListTodo className="w-3 h-3" /> <span className="hidden sm:inline">Log</span>
@@ -38,19 +40,46 @@ const InstanceButtons: React.FC<{
 
   return (
     <div className="flex gap-1">
-      <a
-        href={instance.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={cn(
-          "flex-1 flex items-center justify-center gap-1 px-1 py-1.5 text-[10px] font-medium text-white rounded transition-colors shadow-sm whitespace-nowrap",
-          colorClass
-        )}
-        title="Open App"
-      >
-        <Globe className="w-3 h-3" />
-        <span className="hidden sm:inline">App</span>
-      </a>
+      {isEvent ? (
+        instance.testingUrl ? (
+          <a
+            href={instance.testingUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(
+              "flex-1 flex items-center justify-center gap-1 px-1 py-1.5 text-[10px] font-medium text-white rounded transition-colors shadow-sm whitespace-nowrap",
+              colorClass
+            )}
+            title="Open Cloud Run Test Page"
+          >
+            <FlaskConical className="w-3 h-3" />
+            <span className="hidden sm:inline">Test</span>
+          </a>
+        ) : (
+          <button
+            disabled
+            className="flex-1 flex items-center justify-center gap-1 px-1 py-1.5 text-[10px] font-medium text-slate-400 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded cursor-not-allowed whitespace-nowrap opacity-60"
+            title="Test page not available"
+          >
+            <FlaskConical className="w-3 h-3" />
+            <span className="hidden sm:inline">Test</span>
+          </button>
+        )
+      ) : (
+        <a
+          href={instance.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={cn(
+            "flex-1 flex items-center justify-center gap-1 px-1 py-1.5 text-[10px] font-medium text-white rounded transition-colors shadow-sm whitespace-nowrap",
+            colorClass
+          )}
+          title="Open App"
+        >
+          <Globe className="w-3 h-3" />
+          <span className="hidden sm:inline">App</span>
+        </a>
+      )}
       <a
         href={instance.logUrl}
         target="_blank"
@@ -193,12 +222,14 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
                   <InstanceButtons
                     instance={event}
                     colorClass="bg-amber-600 hover:bg-amber-700"
+                    isEvent
                   />
                 </td>
                 <td className="px-1 py-1">
                   <InstanceButtons
                     instance={testEvent}
                     colorClass="bg-orange-600 hover:bg-orange-700"
+                    isEvent
                   />
                 </td>
               </tr>
