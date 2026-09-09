@@ -152,18 +152,50 @@ export async function listAllJulesSessions(apiKey: string): Promise<JulesSession
  */
 export async function getRemainingSessionCapacity(apiKey: string): Promise<number> {
   const MAX_SESSIONS_24H = 15;
-  const sessions = await listAllJulesSessions(apiKey);
   const now = Date.now();
   const twentyFourHoursAgo = now - 24 * 60 * 60 * 1000;
 
-  const recentSessions = sessions.filter((session) => {
-    if (!session.createTime) return false;
-    const createTime = new Date(session.createTime).getTime();
-    return !isNaN(createTime) && createTime >= twentyFourHoursAgo;
-  });
+  let recentSessionsCount = 0;
+  let pageToken = "";
 
-  const remaining = MAX_SESSIONS_24H - recentSessions.length;
-  console.log(`[JulesClient] 直近24時間のセッション数: ${recentSessions.length} / ${MAX_SESSIONS_24H}, 残り作成枠: ${remaining}`);
+  console.log(`[JulesClient] 残枠計算用の Jules セッションカウントを開始します... (ApiKey: ${maskApiKey(apiKey)})`);
+
+  do {
+    const url = new URL("https://jules.googleapis.com/v1alpha/sessions");
+    url.searchParams.set("pageSize", "100");
+    if (pageToken) {
+      url.searchParams.set("pageToken", pageToken);
+    }
+
+    const res = await fetch(url.toString(), {
+      method: "GET",
+      headers: {
+        "X-Goog-Api-Key": apiKey,
+      },
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error(`[JulesClient] 残枠計算時の Jules API セッション一覧取得に失敗しました: Status=${res.status} ${res.statusText}, URL=${url.toString()}, Response=${errText}`);
+      throw new Error(`Jules API セッション一覧の取得に失敗しました: ${res.status} ${res.statusText} - ${errText}`);
+    }
+
+    const data = await res.json();
+    const pageSessions: JulesSession[] = data.sessions || [];
+
+    for (const session of pageSessions) {
+      if (!session.createTime) continue;
+      const createTime = new Date(session.createTime).getTime();
+      if (!isNaN(createTime) && createTime >= twentyFourHoursAgo) {
+        recentSessionsCount++;
+      }
+    }
+
+    pageToken = data.nextPageToken || "";
+  } while (pageToken);
+
+  const remaining = MAX_SESSIONS_24H - recentSessionsCount;
+  console.log(`[JulesClient] 直近24時間のセッション数: ${recentSessionsCount} / ${MAX_SESSIONS_24H}, 残り作成枠: ${remaining}`);
   return Math.max(0, remaining);
 }
 
