@@ -4,6 +4,7 @@ export interface ServiceListItem {
   name: string;
   url: string;
   logUrl: string;
+  testingUrl?: string;
 }
 
 export function groupServices(services: ServiceListItem[], repoMap: Map<string, GitHubRepoInfo>): ServiceGroup[] {
@@ -54,6 +55,7 @@ export function groupServices(services: ServiceListItem[], repoMap: Map<string, 
     group[type] = {
       url: service.url,
       logUrl: service.logUrl,
+      testingUrl: service.testingUrl,
     };
   }
 
