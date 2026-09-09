@@ -79,7 +79,7 @@ jobs:
           service: ${{ needs.prepare-deploy.outputs.http_service_name }}
           region: ${{ secrets.GCP_REGION }}
           source: .
-          flags: --memory=256Mi
+          flags: --memory=512Mi
           env_vars: |-
             GCP_PROJECT_ID=${{ secrets.GCP_PROJECT_ID }}
             GCP_REGION=${{ secrets.GCP_REGION }}
