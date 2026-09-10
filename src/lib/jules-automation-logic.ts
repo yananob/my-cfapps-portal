@@ -70,8 +70,8 @@ export async function executeJulesAutomation(
     };
   }
 
-  // GitHub からアクティブなリポジトリ一覧（アーカイブ済みを除く）を取得
-  const activeReposMap = await getAllReposInfo();
+  // GitHub からアクティブなリポジトリ一覧（アーカイブ済みを除く）を取得（バックグラウンド処理のため Dependabot アラート取得はスキップ）
+  const activeReposMap = await getAllReposInfo({ includeDependabotAlerts: false });
   const activeReposSet = new Set(
     Array.from(activeReposMap.keys()).map((r) => r.toLowerCase())
   );

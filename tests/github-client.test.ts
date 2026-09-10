@@ -73,6 +73,33 @@ describe('getAllReposInfo', () => {
     expect(repo1?.dependabotUrl).toBe('https://github.com/test-owner/repo1/security/dependabot')
   })
 
+  it('skips Dependabot alerts when includeDependabotAlerts is false', async () => {
+    const mockRepos = [
+      {
+        name: 'repo1',
+        owner: { login: 'test-owner' },
+        html_url: 'https://github.com/test-owner/repo1',
+        archived: false,
+      },
+    ]
+
+    const octokitInstance = new Octokit()
+    vi.mocked(octokitInstance.paginate).mockResolvedValue(mockRepos as any)
+
+    const listAlertsMock = vi.fn()
+    octokitInstance.rest.dependabot = {
+      listAlertsForRepo: listAlertsMock,
+    } as any
+
+    const result = await getAllReposInfo({ includeDependabotAlerts: false })
+
+    expect(result.size).toBe(1)
+    expect(listAlertsMock).not.toHaveBeenCalled()
+    const repo1 = result.get('repo1')
+    expect(repo1?.hasDependabotAlerts).toBe(false)
+    expect(repo1?.dependabotAlertsCount).toBe(0)
+  })
+
   it('throws error if GITHUB_OWNER is not set', async () => {
     delete process.env.GITHUB_OWNER
     await expect(getAllReposInfo()).rejects.toThrow('GITHUB_OWNER is not set')
