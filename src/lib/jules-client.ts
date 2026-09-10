@@ -183,12 +183,23 @@ export async function getRemainingSessionCapacity(apiKey: string): Promise<numbe
     const data = await res.json();
     const pageSessions: JulesSession[] = data.sessions || [];
 
+    let hitOlderThan24h = false;
     for (const session of pageSessions) {
       if (!session.createTime) continue;
       const createTime = new Date(session.createTime).getTime();
-      if (!isNaN(createTime) && createTime >= twentyFourHoursAgo) {
-        recentSessionsCount++;
+      if (!isNaN(createTime)) {
+        if (createTime >= twentyFourHoursAgo) {
+          recentSessionsCount++;
+        } else {
+          // Jules API は最新順にセッションを返却するため、24時間より古いセッションが現れたら以降の件数取得を中断
+          hitOlderThan24h = true;
+        }
       }
+    }
+
+    if (recentSessionsCount >= MAX_SESSIONS_24H || hitOlderThan24h) {
+      console.log(`[JulesClient] 残枠計算を早期終了します (直近24時間カウント: ${recentSessionsCount}, 24h超過検知: ${hitOlderThan24h})`);
+      break;
     }
 
     pageToken = data.nextPageToken || "";
