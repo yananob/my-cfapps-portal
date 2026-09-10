@@ -111,6 +111,68 @@ describe("Jules Client Functions (Actual)", () => {
 
     vi.unstubAllGlobals();
   });
+
+  it("getRemainingSessionCapacity が24時間超の古いセッションを検知した時点で早期終了し、後続ページのフェッチを行わないこと", async () => {
+    const { getRemainingSessionCapacity } = await vi.importActual<typeof import("@/lib/jules-client")>("@/lib/jules-client");
+    const now = Date.now();
+    const mockSessionsPage1 = [
+      { name: "sessions/1", id: "1", title: "s1", prompt: "p1", sourceContext: { source: "src1" }, createTime: new Date(now - 1 * 60 * 60 * 1000).toISOString() },
+      { name: "sessions/2", id: "2", title: "s2", prompt: "p2", sourceContext: { source: "src2" }, createTime: new Date(now - 25 * 60 * 60 * 1000).toISOString() }, // 25時間前
+    ];
+
+    const mockFetch = vi.fn().mockImplementation(async (urlStr: string) => {
+      return {
+        ok: true,
+        status: 200,
+        statusText: "OK",
+        json: async () => ({
+          sessions: mockSessionsPage1,
+          nextPageToken: "should-not-fetch-page-2",
+        }),
+      };
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    const remaining = await getRemainingSessionCapacity("test-api-key");
+    expect(remaining).toBe(14); // 1件のみカウント
+    expect(mockFetch).toHaveBeenCalledTimes(1); // 次ページの fetch は呼ばれていないこと
+
+    vi.unstubAllGlobals();
+  });
+
+  it("getRemainingSessionCapacity が直近24時間のセッション数が15(最大値)に達した時点で早期終了すること", async () => {
+    const { getRemainingSessionCapacity } = await vi.importActual<typeof import("@/lib/jules-client")>("@/lib/jules-client");
+    const now = Date.now();
+    const mock15Sessions = Array.from({ length: 15 }, (_, i) => ({
+      name: `sessions/${i}`,
+      id: `${i}`,
+      title: `s${i}`,
+      prompt: `p${i}`,
+      sourceContext: { source: `src${i}` },
+      createTime: new Date(now - 10 * 60 * 1000).toISOString(),
+    }));
+
+    const mockFetch = vi.fn().mockImplementation(async () => {
+      return {
+        ok: true,
+        status: 200,
+        statusText: "OK",
+        json: async () => ({
+          sessions: mock15Sessions,
+          nextPageToken: "should-not-fetch-page-2",
+        }),
+      };
+    });
+
+    vi.stubGlobal("fetch", mockFetch);
+
+    const remaining = await getRemainingSessionCapacity("test-api-key");
+    expect(remaining).toBe(0);
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+
+    vi.unstubAllGlobals();
+  });
 });
 
 describe("getRootCollectionName のテスト", () => {

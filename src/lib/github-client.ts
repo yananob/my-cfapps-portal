@@ -7,7 +7,10 @@ export type { GitHubRepoInfo };
  * すべてのリポジトリ情報を取得し、リポジトリ名をキーにしたマップを返します。
  * N+1問題を避けるため、一括で取得します。
  */
-export async function getAllReposInfo(): Promise<Map<string, GitHubRepoInfo>> {
+export async function getAllReposInfo(options?: {
+  includeDependabotAlerts?: boolean;
+}): Promise<Map<string, GitHubRepoInfo>> {
+  const includeDependabotAlerts = options?.includeDependabotAlerts ?? true;
   const githubPat = process.env.GITHUB_PAT;
   const githubOwner = process.env.GITHUB_OWNER;
 
@@ -31,41 +34,44 @@ export async function getAllReposInfo(): Promise<Map<string, GitHubRepoInfo>> {
         !repo.archived
     );
 
-    // 各リポジトリの Dependabot アラート並行取得
-    const alertsResults = await Promise.allSettled(
-      activeRepos.map(async (repo) => {
-        try {
-          const response = await octokit.rest.dependabot.listAlertsForRepo({
-            owner: repo.owner.login,
-            repo: repo.name,
-            state: "open",
-            per_page: 100,
-          });
-          const count = response.data ? response.data.length : 0;
-          return {
-            repoName: repo.name,
-            hasAlerts: count > 0,
-            count,
-          };
-        } catch {
-          return {
-            repoName: repo.name,
-            hasAlerts: false,
-            count: 0,
-          };
-        }
-      })
-    );
-
     const alertsMap = new Map<string, { hasAlerts: boolean; count: number }>();
-    alertsResults.forEach((res) => {
-      if (res.status === "fulfilled") {
-        alertsMap.set(res.value.repoName, {
-          hasAlerts: res.value.hasAlerts,
-          count: res.value.count,
-        });
-      }
-    });
+
+    // 各リポジトリの Dependabot アラート並行取得（オプションで有効な場合のみ）
+    if (includeDependabotAlerts) {
+      const alertsResults = await Promise.allSettled(
+        activeRepos.map(async (repo) => {
+          try {
+            const response = await octokit.rest.dependabot.listAlertsForRepo({
+              owner: repo.owner.login,
+              repo: repo.name,
+              state: "open",
+              per_page: 100,
+            });
+            const count = response.data ? response.data.length : 0;
+            return {
+              repoName: repo.name,
+              hasAlerts: count > 0,
+              count,
+            };
+          } catch {
+            return {
+              repoName: repo.name,
+              hasAlerts: false,
+              count: 0,
+            };
+          }
+        })
+      );
+
+      alertsResults.forEach((res) => {
+        if (res.status === "fulfilled") {
+          alertsMap.set(res.value.repoName, {
+            hasAlerts: res.value.hasAlerts,
+            count: res.value.count,
+          });
+        }
+      });
+    }
 
     const repoMap = new Map<string, GitHubRepoInfo>();
     for (const repo of activeRepos) {
